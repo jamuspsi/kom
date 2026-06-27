@@ -1,0 +1,9 @@
+{
+  "name": "@jamus/kom",
+  "version": "0.0.1",
+  "type": "module",
+  "main": "kom_index.ts",
+  "dependencies": {
+    "@jamus/fir": "^0.0.1"
+  }
+}
