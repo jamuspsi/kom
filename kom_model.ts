@@ -15,7 +15,13 @@ function createArrayProxy(koObservableArray, underlying) {
     return new Proxy(koObservableArray(), { // Target the underlying raw array
         get(target, key, receiver) {
             // route mutators to the observableArray itself
-            const koMutators = ['push', 'pop', 'shift', 'unshift', 'splice', 'reverse', 'sort'];
+            const koMutators = [
+                'push', 'pop', 'remove', 'removeAll',
+                'shift', 'unshift', 
+                'splice', 
+                'reverse', 'sort',
+                'get', 'set', 'reindex' // map functions
+            ];
             if (koMutators.includes(key)) {
                 return (...args) => koObservableArray[key](...args);
             }
@@ -51,36 +57,74 @@ function createArrayProxy(koObservableArray, underlying) {
     });
 }
 
-class ObservableStore {
-    model: fir.Model = null;
-    observables = new Map();
-    keys_cache = [];
-    keys_set = new Set();
+// function createMapProxy(koObservableArray, underlying) {
+    
+//     return new Proxy(koObservableArray(), { // Target the underlying raw array
+//         get(target, key, receiver) {
+//             // route mutators to the observableArray itself
+//             const koMutators = ['push', 'pop', 'shift', 'unshift', 'splice', 'reverse', 'sort'];
+//             if (koMutators.includes(key)) {
+//                 return (...args) => koObservableArray[key](...args);
+//             }
 
+//             //on any other read access, trigger dependency tracking.
+//             koObservableArray(); 
+
+//             // route everything else to the underlying raw array
+//             const value = Reflect.get(underlying, key, receiver);
+//             if (typeof value === 'function') {
+//                 return value.bind(underlying);
+//             }
+//             return value;
+//         },
+//         set(target, key, value, receiver) {
+//             // model.some_list[0] = 'new item'
+//             if (!isNaN(Number(key))) {
+//                 // const rawArray = koObservableArray.peek();
+//                 underlying[key] = value;
+//                 koObservableArray.valueHasMutated(); // Force update
+//                 return true;
+//             }
+//             // set anything else through reflect
+//             return Reflect.set(underlying, key, value, receiver);
+//         },
+//         getOwnPropertyDescriptor(target, key) {
+//             return Reflect.getOwnPropertyDescriptor(underlying, key);
+//         },
+//         ownKeys(target) {
+//             const keys = Reflect.ownKeys(underlying);
+//             return keys;
+//         },
+//     });
+// }
+
+const ProxyModelSymbol = Symbol('ProxyModelSymbol');
+
+class ObservableStore {
     constructor(model: fir.Model) {
-        this.model = model;
+        this[ProxyModelSymbol] = model;
+        // const model = model;
+        // this.model = model;
 
 
         return new Proxy(this, {
-            get(target, key) {
-                if (key === Symbol.iterator) {
-                    // because this is a map, it returns [[key, observable], ...]
-                    return target.observables[Symbol.iterator].bind(target.observables);
-                }
-
-                return target.observables.get(key);
-            },
+            // get(target, key) {
+            //     return Reflect.get(target, key)
+            // },
             set(target, key, val) {
                 // check if val is an actual observable?
                 //stash the observable for later
-                target.observables.set(key, val);
+                // target.observables.set(key, val);
                 // setup the accessor on model
+
+                // if this is an observableMap, add get/set/indexer to the
+                // underlying array.
 
                 if(ko.isObservableArray(val)) {
                     const underlying = val.peek();
                     val.proxy = createArrayProxy(val, underlying);
                     
-                    Object.defineProperty(target.model, key, {
+                    Object.defineProperty(model, key, {
                         'get': ()=>val.proxy,
                         'set': (newArray)=>{
                             // console.log("Reassigning ", key, " to new array ", newArray);
@@ -90,48 +134,17 @@ class ObservableStore {
                         enumerable: true,
                         configurable: true,
                     });
-                } else {
-                    Object.defineProperty(target.model, key, {
+                } else if(ko.isObservable(val)) {
+
+                    Object.defineProperty(model, key, {
                         'get': val,
                         'set': val,
                         enumerable: true,
                         configurable: true,
                     });
                 }
-
-                if(!target.keys_set.has(key)) {
-                    target.keys_set.add(key);
-                    target.keys_cache.push(key);
-                }
-
-                return true;
-                // console.log(`Proxy set ${key}=${val}`, key, val);
+                return Reflect.set(target, key, val);
             },
-            deleteProperty(target, key) {
-                console.log("Deleting observable ", key);
-                target.observables.delete(key);
-                if(target.keys_set.has(key)) {
-                    target.keys_set.delete(key);
-                    target.keys_cache = Array.from(target.keys_set);
-                    delete target.model[key];
-                }
-
-            },
-            has(target, key) {
-                return target.keys_set.has(key);
-            },
-            ownKeys(target) {
-                return target.keys_cache;
-            },
-            getOwnPropertyDescriptor(target, key) {
-                if (target.keys_set.has(key)) {
-                  // Reuse the exact same memory address, just swap the value pointer
-                  sharedDescriptor.value = target.observables.get(key)
-                  return sharedDescriptor; 
-                }
-                return undefined;
-            },
-
         });
     }
 };
@@ -161,9 +174,6 @@ export class Model extends fir.Model {
         this.obs.pk = ko.observable(this.pk);
 
     }
-    // get obs() {
-    //     return this[ObsStoreSymbol];
-    // }
 
 }
 fir.Model.__register__();
