@@ -1,15 +1,8 @@
 import {ko} from './knockout-3.4.0.koplus';
 import moment from 'moment';
 import * as fir from '@jamus/fir';
-console.log("Fir is ", fir);
 //It's fine to share this, because this is only accessed in narrow
 // circumstances (within fir.Model constructors)
-const sharedDescriptor = {
-  enumerable: true,
-  configurable: true,
-  writable: true,
-  value: null // We will mutate this placeholder
-};
 
 function createArrayProxy(koObservableArray, underlying) {
     return new Proxy(koObservableArray(), { // Target the underlying raw array
@@ -57,46 +50,6 @@ function createArrayProxy(koObservableArray, underlying) {
     });
 }
 
-// function createMapProxy(koObservableArray, underlying) {
-    
-//     return new Proxy(koObservableArray(), { // Target the underlying raw array
-//         get(target, key, receiver) {
-//             // route mutators to the observableArray itself
-//             const koMutators = ['push', 'pop', 'shift', 'unshift', 'splice', 'reverse', 'sort'];
-//             if (koMutators.includes(key)) {
-//                 return (...args) => koObservableArray[key](...args);
-//             }
-
-//             //on any other read access, trigger dependency tracking.
-//             koObservableArray(); 
-
-//             // route everything else to the underlying raw array
-//             const value = Reflect.get(underlying, key, receiver);
-//             if (typeof value === 'function') {
-//                 return value.bind(underlying);
-//             }
-//             return value;
-//         },
-//         set(target, key, value, receiver) {
-//             // model.some_list[0] = 'new item'
-//             if (!isNaN(Number(key))) {
-//                 // const rawArray = koObservableArray.peek();
-//                 underlying[key] = value;
-//                 koObservableArray.valueHasMutated(); // Force update
-//                 return true;
-//             }
-//             // set anything else through reflect
-//             return Reflect.set(underlying, key, value, receiver);
-//         },
-//         getOwnPropertyDescriptor(target, key) {
-//             return Reflect.getOwnPropertyDescriptor(underlying, key);
-//         },
-//         ownKeys(target) {
-//             const keys = Reflect.ownKeys(underlying);
-//             return keys;
-//         },
-//     });
-// }
 
 const ProxyModelSymbol = Symbol('ProxyModelSymbol');
 
@@ -150,16 +103,6 @@ class ObservableStore {
 };
 
 
-
-// const ObsStoreSymbol = Symbol('obs_store');
-const MroMap = new Map();
-const KeysMap = new Map();
-const PatchKeysMap = new Map();
-const ModelRegistry = new Map();
-const ChildClassMap = new Map();
-
-
-
 export class Model extends fir.Model {
 
     constructor() {
@@ -176,4 +119,4 @@ export class Model extends fir.Model {
     }
 
 }
-fir.Model.__register__();
+Model.__register__();

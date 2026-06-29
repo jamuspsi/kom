@@ -11,12 +11,15 @@ export class Guild extends Model {
         this.obs.roster = ko.observableArray([]); // [GuildMember]
     }
 
-    static __keys__ = [
-        'name', 'established', 'hall', 'roster',
-    ];
-    static __patchkeys__ = [
-        'name', 'hall', 'roster',
-    ];
+    // static __keys__ = [
+    //     'name', 'established', 'hall', 'roster',
+    // ];
+    // static __patchkeys__ = [
+    //     'name', 'hall', 'roster',
+    // ];
+    static __contracts__ = {
+        default: ['$name', 'established', '$hall', '$roster']
+    }
 }
 Guild.__register__();
 
@@ -28,14 +31,17 @@ export class GuildHall extends Model {
         this.obs.rooms = kom.observableMap([], room=>room.name); // [Room], later Map<name:string, Room>
     }
 
-    static __keys__ = [
-        'location',
-        'rooms',
-    ];
-    static __patchkeys__ = [
-        'location',
-        'rooms',
-    ];
+    // static __keys__ = [
+    //     'location',
+    //     'rooms',
+    // ];
+    // static __patchkeys__ = [
+    //     'location',
+    //     'rooms',
+    // ];
+    static __contracts__ = {
+        default: ['$location', '$rooms'],
+    }
 }
 GuildHall.__register__();
 
@@ -48,8 +54,12 @@ export class Room extends Model {
         this.obs.functions = ko.observableArray([]); // later, Map<function_type:string, Room>
     }
 
-    static __keys__ = ['name', 'functions',];
-    static __patchkeys__ = ['name', 'functions',];
+    // static __keys__ = ['name', 'functions',];
+    // static __patchkeys__ = ['name', 'functions',];
+
+    static __contracts__ = {
+        default: ['$name', '$functions']
+    }
 }
 Room.__register__();
 
@@ -60,8 +70,8 @@ export class RoomFunction extends Model {
         this.obs.function_type = ko.observable(null); //string
     }
 
-    static __keys__ = [];
-    static __patchkeys__ = [];
+    // static __keys__ = [];
+    // static __patchkeys__ = [];
 }
 RoomFunction.__register__();
 
@@ -73,8 +83,11 @@ export class RestFunction extends RoomFunction {
         this.obs.sleeping_hours = ko.observable(8); //number
     }
 
-    static __keys__ = ['sleeping_hours',];
-    static __patchkeys__ = ['sleeping_hours',];
+    // static __keys__ = ['sleeping_hours',];
+    // static __patchkeys__ = ['sleeping_hours',];
+    static __contracts__ = {
+        default: ['$sleeping_hours']
+    }
 }
 RestFunction.__register__();
 
@@ -86,8 +99,11 @@ export class TrainingFunction extends RoomFunction {
         this.obs.monster_types = ko.observableArray([]); // [string]
     }
 
-    static __keys__ = ['monster_types'];
-    static __patchkeys__ = ['monster_types'];
+    // static __keys__ = ['monster_types'];
+    // static __patchkeys__ = ['monster_types'];
+    static __contracts__ = {
+        default: ['$monster_types']
+    }
 }
 TrainingFunction.__register__();
 
@@ -102,8 +118,13 @@ export class GuildMember extends Model {
         this.favorite_colors = ko.observableArray([]); // [string]
     }
 
-    static __keys__ = ['name', 'score', 'awards', 'favorite_colors'];
-    static __patchkeys__ = ['name', 'favorite_colors'];
+    // static __keys__ = ['name', 'score', 'awards', 'favorite_colors'];
+    // static __patchkeys__ = ['name', 'favorite_colors'];
+
+    static __contracts__ = {
+        default: ['$name', 'score', 'awards', '$favorite_colors']
+    }
+
 }
 GuildMember.__register__();
 
