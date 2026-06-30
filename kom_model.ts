@@ -1,6 +1,8 @@
 import {ko} from './knockout-3.4.0.koplus';
 import moment from 'moment';
 import * as fir from '@jamus/fir';
+import {observableMap} from './observable_map';
+
 //It's fine to share this, because this is only accessed in narrow
 // circumstances (within fir.Model constructors)
 
@@ -103,8 +105,54 @@ class ObservableStore {
 };
 
 
-export class Model extends fir.Model {
+export class KomModelMeta extends fir.ModelMeta {
+    constructor(model) {
+        super(model);
 
+        // we'll have now done the schema processing already.
+        this.create_knockout_instructions();
+    }
+    create_knockout_instructions() {
+        this.ko_inits = [];
+
+        for(const [field, def] of this.schema) {
+            let factory;
+            if(def.ko === false) {
+                continue;
+            } else if(def.ko) {
+                factory = def.ko;
+            } else if(def.is_array) {
+                if(def.indexer) {
+                    factory = (init)=>observableMap(init, def.indexer)
+                } else {
+                    factory = ko.observableArray;
+                }
+            } else {
+                factory = ko.observable;
+            }
+            let init = def.init !== undefined ? def.init : def.is_array ? [] : null;
+
+            let instruction;
+            if(typeof init === 'function') {
+                instruction = (inst)=>{
+                    inst.obs[field] = factory(init(inst));
+                }
+            } else {
+                instruction = (inst)=>{
+                    inst.obs[field] = factory(init);
+                }
+            }
+            instruction.field = field;
+            instruction.factory = factory;
+            this.ko_inits.push(instruction);
+        }
+    }
+}
+
+export class Model extends fir.Model {
+    static get __metaclass__() {
+        return KomModelMeta;
+    }
     constructor() {
         super();
         //hide the observable store from enumeration.
@@ -114,7 +162,11 @@ export class Model extends fir.Model {
             configurable: true,
             writable: true
         });
-        this.obs.pk = ko.observable(this.pk);
+
+        for(var instruction of this.__class__.__meta__.ko_inits) {
+            instruction(this);
+        }
+        // this.obs.pk = ko.observable(this.pk);
 
     }
 
