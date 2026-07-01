@@ -2,7 +2,7 @@ import {ko, Model} from '@jamus/kom';
 import * as kom from '@jamus/kom';
 import moment from 'moment';
 
-
+// DO NOT REORDER- RoomFunction needs to be an unresolved forward reference for tests
 export class Room extends Model {
     constructor() {
         super();
@@ -14,6 +14,7 @@ export class Room extends Model {
     // static __patchkeys__ = ['name', 'functions',];
     static __schema__ = {
         $name: String,
+        // NEEDS to be an unresolved forward reference
         $functions: {type: ['RoomFunction'], indexer: rf=>rf.function_type}
     }
 

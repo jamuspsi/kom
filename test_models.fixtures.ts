@@ -63,6 +63,16 @@ export const guild_pojo = {
                 { name: "Framework Architect", awarded: { __kls__: "datetime", d: "2026-06-26T03:45:00.000Z" } }
             ],
             favorite_colors: ["Midnight Blue", "Slate"]
+        },
+        {
+            __kls__: 'GuildMember',
+            pk: 19,
+            name: "Tobias",
+            score: {__kls__: 'Decimal', 'str': '0.01'},
+            awards: [
+                { name: "Empathy", awarded: { __kls__: "datetime", d: "2001-01-02T03:45:00.000Z" } }
+            ],
+            favorite_colors: ["Purple"]
         }
     ]
 };
@@ -102,6 +112,17 @@ export const guild_loaded = {
             ],
             favorite_colors: ["Midnight Blue", "Slate"],
             _password: null,
+        },
+        {
+            pk: 19,
+            name: "Tobias",
+            score: 0.01,
+            awards: [
+                { name: "Empathy", awarded: new moment("2001-01-02T03:45:00.000Z") }
+            ],
+            favorite_colors: ["Purple"],
+            _password: null,
         }
+
     ]
 }
