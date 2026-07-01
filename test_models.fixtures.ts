@@ -12,7 +12,7 @@ export const gm_pojo_good =  {
     favorite_colors: ["Midnight Blue", "Slate"],
 }
 export const gm_pojo_scuffed = {...gm_pojo_good, 
-    password: 'hunter22',
+    _password: 'hunter22',
     dne: 'some_value',
 };
 
@@ -101,7 +101,7 @@ export const guild_loaded = {
                 { name: "Framework Architect", awarded: new moment("2026-06-26T03:45:00.000Z") }
             ],
             favorite_colors: ["Midnight Blue", "Slate"],
-            password: null,
+            _password: null,
         }
     ]
 }

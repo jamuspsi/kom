@@ -1,7 +1,7 @@
 import {ko} from './knockout-3.4.0.koplus';
 
 export const observableMap = function(initial, indexer) {
-    const list = ko.observableArray(initial);
+    const list = ko.observableArray(initial || []);
 
     list.isObservableMap = true;
     list.indexer = indexer;

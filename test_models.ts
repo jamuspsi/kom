@@ -7,20 +7,19 @@ export class Room extends Model {
     constructor() {
         super();
         // this.obs.name = ko.observable(null); // string
-        // TODO: indexed map
         // this.obs.functions = ko.observableArray([]); // later, Map<function_type:string, Room>
     }
 
     // static __keys__ = ['name', 'functions',];
     // static __patchkeys__ = ['name', 'functions',];
     static __schema__ = {
-        name: String,
-        functions: {type: ['RoomFunction'], indexer: rf=>rf.function_type}
+        $name: String,
+        $functions: {type: ['RoomFunction'], indexer: rf=>rf.function_type}
     }
 
-    static __contracts__ = {
-        default: ['$name', '$functions']
-    }
+    // static __contracts__ = {
+    //     default: ['$name', '$functions']
+    // }
 }
 Room.__register__();
 
@@ -35,6 +34,11 @@ export class RoomFunction extends Model {
     static __schema__ = {
         function_type: String,
     }
+    static __contracts__ = {
+        // specially, this should not serialize at all
+        // not even on subclasses (RestFunction, TrainingFunction)
+        default: ['-function_type'],
+    }
     // static __keys__ = [];
     // static __patchkeys__ = [];
 }
@@ -46,7 +50,7 @@ export class GuildHall extends Model {
         super();
         // this.obs.location = ko.observable({x: 0, y: 0}); // {x,y}
         // this.obs.rooms = kom.observableMap([], room=>room.name); // [Room], later Map<name:string, Room>
-    }
+    }   
 
     // static __keys__ = [
     //     'location',
@@ -57,12 +61,12 @@ export class GuildHall extends Model {
     //     'rooms',
     // ];
     static __schema__ = {
-        location: {type: Object, init: ()=>({x: 0, y: 0}) },
-        rooms: {type: [Room], indexer: room=>room.name},
+        $location: {type: Object, init: ()=>({x: 0, y: 0}) },
+        $rooms: {type: [Room], indexer: room=>room.name},
     }
-    static __contracts__ = {
-        default: ['$location', '$rooms'],
-    }
+    // static __contracts__ = {
+    //     default: ['$location', '$rooms'],
+    // }
 
 }
 GuildHall.__register__();
@@ -81,11 +85,11 @@ export class RestFunction extends RoomFunction {
     // static __keys__ = ['sleeping_hours',];
     // static __patchkeys__ = ['sleeping_hours',];
     static __schema__ = {
-        sleeping_hours: {type: Number, init: 8}
+        $sleeping_hours: {type: Number, init: 8}
     }
-    static __contracts__ = {
-        default: ['$sleeping_hours']
-    }
+    // static __contracts__ = {
+    //     default: ['$sleeping_hours']
+    // }
 }
 RestFunction.__register__();
 
@@ -100,11 +104,11 @@ export class TrainingFunction extends RoomFunction {
     // static __keys__ = ['monster_types'];
     // static __patchkeys__ = ['monster_types'];
     static __schema__ = {
-        monster_types: [String],
+        $monster_types: [String],
     }
-    static __contracts__ = {
-        default: ['$monster_types']
-    }
+    // static __contracts__ = {
+    //     default: ['$monster_types']
+    // }
 }
 TrainingFunction.__register__();
 
@@ -117,22 +121,22 @@ export class GuildMember extends Model {
         // this.obs.password = ko.observable(null);
 
         // this.favorite_colors = ko.observableArray([]); // [string]
-        this.password = null; // not ko.
+        this._password = null; // not ko.
     }
 
     // static __keys__ = ['name', 'score', 'awards', 'favorite_colors'];
     // static __patchkeys__ = ['name', 'favorite_colors'];
     static __schema__ = {
-        name: {type: String, ko: ko.observable},
+        $name: {type: String, ko: ko.observable},
         score: {type: Number, init: 0.5},
         awards: [Object],
-        password: {type: String, ko: false},
-        favorite_colors: {type: [String], ko: ko.observableArray, init: ()=>['red']},
+        _password: {type: String, ko: false},
+        $favorite_colors: {type: [String], ko: ko.observableArray, init: ()=>['red']},
     }
 
-    static __contracts__ = {
-        default: ['$name', 'score', 'awards', '$favorite_colors']
-    }
+    // static __contracts__ = {
+    //     default: ['$name', 'score', 'awards', '$favorite_colors']
+    // }
 
 }
 GuildMember.__register__();
@@ -143,10 +147,10 @@ export class Guild extends Model {
     constructor() {
         super();
 
-        this.obs.name = ko.observable(null); // string
-        this.obs.established = ko.observable(null); // datetime
-        this.obs.hall = ko.observable(new GuildHall()); // GuildHall
-        this.obs.roster = ko.observableArray([]); // [GuildMember]
+        // this.obs.name = ko.observable(null); // string
+        // this.obs.established = ko.observable(null); // datetime
+        // this.obs.hall = ko.observable(new GuildHall()); // GuildHall
+        // this.obs.roster = ko.observableArray([]); // [GuildMember]
     }
 
     // static __keys__ = [
@@ -156,14 +160,14 @@ export class Guild extends Model {
     //     'name', 'hall', 'roster',
     // ];
     static __schema__ = {
-        name: String,
+        $name: String,
         established: moment,
-        hall: GuildHall,
-        roster: [GuildMember],
+        $hall: GuildHall,
+        $roster: [GuildMember],
     }
-    static __contracts__ = {
-        default: ['$name', 'established', '$hall', '$roster']
-    }
+    // static __contracts__ = {
+    //     default: ['$name', 'established', '$hall', '$roster']
+    // }
 }
 Guild.__register__();
 
