@@ -608,6 +608,101 @@ describe('Testing complex object patch', ()=>{
 
 });
 
+describe('Model.sync_to_instance', ()=>{
+    let guild;
+    let clean_guild;
+    let update_guild;
+
+    beforeEach(()=>{
+        clean_guild = Model.from_pojo(guild_pojo);
+        guild = Model.from_pojo(guild_pojo);
+        update_guild = Model.from_pojo(guild_pojo);
+    });
+
+    test('Sync a no-op', ()=>{
+        var old_hall = guild.hall;
+        var old_gm_1 = guild.roster[1];
+        var old_room_function_1_0 = guild.hall.rooms[1].functions[0];
+
+        guild.sync_to_instance(update_guild);
+        expect(guild).toEqual(update_guild);
+        expect(guild).toEqual(clean_guild);
+        // no instances should have changed
+        expect(guild.hall).toBe(old_hall);
+        expect(guild.roster[1]).toBe(old_gm_1);
+        expect(guild.hall.rooms[1].functions[0]).toBe(old_room_function_1_0);
+
+    });
+
+    test('Sync a simple update', ()=>{
+        var old_hall = guild.hall;
+        var old_gm_1 = guild.roster[1];
+        var old_room_function_1_0 = guild.hall.rooms[1].functions[0];
+
+        update_guild.name = 'Some New Name';
+        guild.sync_to_instance(update_guild);
+        expect(guild.name).toEqual(update_guild.name);
+        expect(guild.name).toEqual('Some New Name');
+
+        // no instances should have changed
+        expect(guild.hall).toBe(old_hall);
+        expect(guild.roster[1]).toBe(old_gm_1);
+        expect(guild.hall.rooms[1].functions[0]).toBe(old_room_function_1_0);
+
+    });
+    test('Sync a deeply nested update', ()=>{
+        var old_hall = guild.hall;
+        var old_gm_1 = guild.roster[1];
+        var old_room_function_1_0 = guild.hall.rooms[1].functions[0];
+
+        // what comes out of the fixture
+        expect(update_guild.hall.rooms.get('Sleepy Training').functions.get('training').monster_types).toEqual(['Goblin', 'Orc']);
+
+        // add rat
+        update_guild.hall.rooms.get('Sleepy Training').functions.get('training').monster_types.push('Rat');
+
+        guild.sync_to_instance(update_guild);
+        expect(guild.hall.rooms.get('Sleepy Training').functions.get('training').monster_types).toEqual(['Goblin', 'Orc', 'Rat']);
+
+        // no instances should have changed
+        expect(guild.hall).toBe(old_hall);
+        expect(guild.roster[1]).toBe(old_gm_1);
+        expect(guild.hall.rooms[1].functions[0]).toBe(old_room_function_1_0);
+
+    });
+
+    test('Sync roster reorder and rename, push', ()=>{
+        var old_hall = guild.hall;
+        var old_gm_0 = guild.roster[0];
+        var old_gm_1 = guild.roster[1];
+        var old_room_function_1_0 = guild.hall.rooms[1].functions[0];
+
+        update_guild.roster[0].name = 'Alpha';
+        update_guild.roster[1].name = 'Bravo';
+        update_guild.roster.reverse()
+        var charlie = new GuildMember();
+        charlie.name = 'Charlie';
+        update_guild.roster.push(charlie);
+
+        guild.sync_to_instance(update_guild);
+        expect(guild.name).toEqual(clean_guild.name);
+
+        // other instances should not have changed
+        expect(guild.hall).toBe(old_hall);
+        expect(guild.hall.rooms[1].functions[0]).toBe(old_room_function_1_0);
+
+        expect(guild.roster[0]).toBe(old_gm_1);
+        expect(guild.roster[0].name).toBe('Bravo');
+        expect(guild.roster[1]).toBe(old_gm_0);
+        expect(guild.roster[1].name).toBe('Alpha');
+
+        expect(guild.roster).toHaveLength(3);
+        expect(guild.roster[2]).toBe(charlie);
+
+    });
+
+
+});
 
 // describe('JSON serialization with Model.loads()', ()=>{
 //     let guild;

@@ -39,8 +39,8 @@ export const guild_pojo = {
                 name: "Sleepy Training",
                 pk: 3,
                 functions: [
-                    { __kls__: "RestFunction", pk: null, sleeping_hours: 6 },
-                    { __kls__: "TrainingFunction", pk: null, monster_types: ["Goblin", "Orc"] }
+                    { __kls__: "RestFunction", pk: 50, sleeping_hours: 6 },
+                    { __kls__: "TrainingFunction", pk: 51, monster_types: ["Goblin", "Orc"] }
                 ]
             },
             {
@@ -48,7 +48,7 @@ export const guild_pojo = {
                 name: "Restroom",
                 pk: 4,
                 functions: [
-                    { __kls__: "RestFunction", pk: null, sleeping_hours: 6 }
+                    { __kls__: "RestFunction", pk: 52, sleeping_hours: 6 }
                 ]
             }
         ]
@@ -89,15 +89,15 @@ export const guild_loaded = {
                 name: "Sleepy Training",
                 pk: 3,
                 functions: [
-                    { pk: null, function_type: 'rest', sleeping_hours: 6 },
-                    { pk: null, function_type: 'training', monster_types: ["Goblin", "Orc"] }
+                    { pk: 50, function_type: 'rest', sleeping_hours: 6 },
+                    { pk: 51, function_type: 'training', monster_types: ["Goblin", "Orc"] }
                 ]
             },
             {
                 name: "Restroom",
                 pk: 4,
                 functions: [
-                    { pk: null, function_type: 'rest', sleeping_hours: 6 }
+                    { pk: 52, function_type: 'rest', sleeping_hours: 6 }
                 ]
             }
         ]
